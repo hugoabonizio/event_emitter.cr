@@ -1,0 +1,9 @@
+name: event_emitter
+version: 0.1.0
+
+authors:
+  - Hugo Abonizio <hugo_abonizio@hotmail.com>
+
+crystal: 0.22.0
+
+license: MIT

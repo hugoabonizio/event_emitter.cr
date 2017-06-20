@@ -1,5 +1,7 @@
 # Event Emitter
 
+[![Build Status](https://travis-ci.org/hugoabonizio/event_emitter.cr.svg?branch=master)](https://travis-ci.org/hugoabonizio/event_emitter.cr)
+
 EventEmitter provides an idiomatic asynchronous event-driven architecture by registering listeners functions that are called by named event emits. This shard is heavily inspired by Node.js [events API](https://nodejs.org/api/events.html).
 
 When the ```emit``` method is called, the listeners attached to it will be called (synchronously or asynchronously) with the possibility to pass arguments to it.

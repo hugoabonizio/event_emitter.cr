@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/hugoabonizio/event_emitter.cr.svg?branch=master)](https://travis-ci.org/hugoabonizio/event_emitter.cr)
 
-EventEmitter provides an idiomatic asynchronous event-driven architecture by registering listeners functions that are called by named event emits. This shard is heavily inspired by Node.js [events API](https://nodejs.org/api/events.html).
+EventEmitter provides an idiomatic asynchronous event-driven architecture by registering listener functions that are called by named event emits. This shard is heavily inspired by Node.js [events API](https://nodejs.org/api/events.html).
 
 When the ```emit``` method is called, the listeners attached to it will be called (synchronously or asynchronously) with the possibility to pass arguments to it.
 
@@ -27,19 +27,25 @@ emitter = MyEmitter.new
 emitter.connect("Hugo")
 ```
 
-## Installation
+Another approach is to inherit from ```EventEmitter::Base``` class, as the example above:
 
-Add this to your application's `shard.yml`:
+```crystal
+class MyEmitter < EventEmitter::Base; end
 
-```yaml
-dependencies:
-  event_emitter:
-    github: hugoabonizio/event_emitter.cr
+my = MyEmitter.new
+my.on :event, ->(name : EventEmitter::Base::Any) do
+  puts "Hello #{name}"
+end
+
+my.emit :event, "hugo"
+my.emit :event, "abonizio"
 ```
 
 ## Usage
 
-### Synchronous and asynchronous
+### DSL
+
+#### Synchronous and asynchronous
 
 A listener can execute a block synchronously or asynchronously depending on the argument ```sync``` it is passed.
 
@@ -55,7 +61,7 @@ on :connect, sync: true do |name|
 end
 ```
 
-### Passing arguments to the listeners
+#### Passing arguments to the listeners
 
 ```crystal
 class MyEmitter
@@ -72,7 +78,7 @@ class MyEmitter
 end
 ```
 
-### Multiple listeners
+#### Multiple listeners
 
 It is possible to register more than one listener to a given event by calling [previous_def](https://crystal-lang.org/docs/syntax_and_semantics/methods_and_instance_variables.html) inside the block making the blocks stackable. If the listeners are async, each one is executed in its own fiber concurrently.
 
@@ -82,6 +88,34 @@ on :message do |message|
   log "Message received: #{message}"
 end
 ```
+
+### Instance
+
+The class ```EventEmitter::Base``` provides the methods ```on``` and ```emit``` to insert a new listener and trigger an event.
+
+You can inherit from ```EventEmitter::Base``` class to add custom functionality (```class MyEmitter < EventEmitter::Base; end```) or simply create an instance of ```EventEmitter::Base``` as the following example.
+
+```crystal
+emitter = EventEmitter::Base.new
+emitter.on :message, ->(body : EventEmitter::Base::Any) do
+  puts "> #{body}"
+end
+
+delay 200.milliseconds do
+  emitter.emit :message, "Hello, world!"
+end
+```
+
+## Installation
+
+Add this to your application's `shard.yml`:
+
+```yaml
+dependencies:
+  event_emitter:
+    github: hugoabonizio/event_emitter.cr
+```
+
 
 ## Contributing
 

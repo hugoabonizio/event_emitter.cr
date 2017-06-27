@@ -3,16 +3,23 @@ module EventEmitter
     # TODO make recursive types work
     alias Any = Nil |
                 Bool |
+                Int16 |
+                Int32 |
                 Int64 |
+                Float32 |
                 Float64 |
                 String
     # Array(Any) |
     # Hash(String, Any)
-    @channels = Hash(Symbol, Array(Channel::Unbuffered(Any))).new([] of Channel::Unbuffered(Any))
+    @channels = Hash(Symbol, Array(Channel::Unbuffered(Any))).new
 
     def on(event, block : T ->) forall T
       channel = Channel::Unbuffered(Any).new
-      @channels[event] << channel
+      if @channels.has_key? event
+        @channels[event] << channel
+      else
+        @channels[event] = [channel]
+      end
 
       spawn do
         loop do
@@ -22,8 +29,12 @@ module EventEmitter
     end
 
     def on(event, &block) forall T
-      channel = Channel::Unbuffered(Nil).new
-      @channels[event] << channel
+      channel = Channel::Unbuffered(Any).new
+      if @channels.has_key? event
+        @channels[event] << channel
+      else
+        @channels[event] = [channel]
+      end
 
       spawn do
         loop do

@@ -91,7 +91,7 @@ end
 
 ### Instance
 
-The class ```EventEmitter::Base``` provides the methods ```on``` and ```emit``` to insert a new listener and trigger an event.
+The class ```EventEmitter::Base``` provides the methods ```on```, ```once``` and ```emit``` to insert a new listener, insert a one-time listener and trigger an event, respectively.
 
 You can inherit from ```EventEmitter::Base``` class to add custom functionality (```class MyEmitter < EventEmitter::Base; end```) or simply create an instance of ```EventEmitter::Base``` as the following example.
 
@@ -104,6 +104,19 @@ end
 delay 200.milliseconds do
   emitter.emit :message, "Hello, world!"
 end
+```
+
+Handling events only once:
+
+```crystal
+emitter = EventEmitter::Base.new
+flag = 1
+emitter.once :trigger do
+  flag = 2
+end
+
+emitter.emit :trigger
+emitter.emit :trigger # Will execute only the first trigger
 ```
 
 ## Installation

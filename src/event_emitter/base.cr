@@ -28,7 +28,7 @@ module EventEmitter
       end
     end
 
-    def on(event, &block) forall T
+    def on(event, &block)
       channel = Channel::Unbuffered(Any).new
       if @channels.has_key? event
         @channels[event] << channel
@@ -41,6 +41,35 @@ module EventEmitter
           channel.receive
           block.call
         end
+      end
+    end
+
+    def once(event, block : T ->) forall T
+      channel = Channel::Unbuffered(Any).new
+      if @channels.has_key? event
+        @channels[event] << channel
+      else
+        @channels[event] = [channel]
+      end
+
+      spawn do
+        block.call(channel.receive)
+        @channels[event].delete(channel)
+      end
+    end
+
+    def once(event, &block)
+      channel = Channel::Unbuffered(Any).new
+      if @channels.has_key? event
+        @channels[event] << channel
+      else
+        @channels[event] = [channel]
+      end
+
+      spawn do
+        channel.receive
+        block.call
+        @channels[event].delete(channel)
       end
     end
 

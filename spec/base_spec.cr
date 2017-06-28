@@ -54,4 +54,17 @@ describe EventEmitter::Base do
     flag_string.should eq("123")
     flag_bool.should eq(true)
   end
+
+  it "executes once" do
+    emitter = EventEmitter::Base.new
+    flag = 1
+    emitter.once :trigger do
+      flag = 2
+    end
+
+    emitter.emit :trigger
+    emitter.emit :trigger
+    sleep 100.milliseconds
+    flag.should eq(2)
+  end
 end

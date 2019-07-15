@@ -33,7 +33,7 @@ Another approach is to inherit from ```EventEmitter::Base``` class, as the examp
 class MyEmitter < EventEmitter::Base; end
 
 my = MyEmitter.new
-my.on :event, ->(name : EventEmitter::Base::Any) do
+my.on :event do |name|
   puts "Hello #{name}"
 end
 
@@ -97,7 +97,7 @@ You can inherit from ```EventEmitter::Base``` class to add custom functionality 
 
 ```crystal
 emitter = EventEmitter::Base.new
-emitter.on :message, ->(body : EventEmitter::Base::Any) do
+emitter.on :message do |body|
   puts "> #{body}"
 end
 

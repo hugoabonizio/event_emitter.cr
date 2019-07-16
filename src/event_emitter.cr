@@ -1,3 +1,5 @@
+require "json"
+require "yaml"
 require "./event_emitter/*"
 
 module EventEmitter
@@ -11,7 +13,9 @@ module EventEmitter
               Float64 |
               String |
               Array(Any) |
-              Hash(Any, Any)
+              Hash(Any, Any) |
+              JSON::Any |
+              YAML::Any
 
   # TODO: See if there isn't a better way to do this
   def self.any(any)

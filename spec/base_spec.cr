@@ -64,11 +64,11 @@ describe EventEmitter::Base do
     emitter.on :trigger_hash { |hash| flag_hash = hash }
 
     emitter.emit :trigger_arr, [1, 2, 3, 4, 5]
-    emitter.emit :trigger_hash, { "a" => "b" }
+    emitter.emit :trigger_hash, {"a" => "b"}
 
     sleep 100.milliseconds
     flag_arr.should eq([1, 2, 3, 4, 5])
-    flag_hash.should eq({ "a" => "b" })
+    flag_hash.should eq({"a" => "b"})
   end
 
   it "executes once" do

@@ -1,8 +1,9 @@
 module EventEmitter
   class Base
-    @channels = Hash(Symbol, Array(Channel::Unbuffered(Any))).new
+    @channels = Hash(String, Array(Channel::Unbuffered(Any))).new
 
     def on(event, &block : Any ->)
+      event = event.to_s unless event.is_a?(String)
       channel = Channel::Unbuffered(Any).new
       if @channels.has_key? event
         @channels[event] << channel
@@ -18,6 +19,7 @@ module EventEmitter
     end
 
     def once(event, &block : Any ->)
+      event = event.to_s unless event.is_a?(String)
       channel = Channel::Unbuffered(Any).new
       if @channels.has_key? event
         @channels[event] << channel
@@ -32,6 +34,7 @@ module EventEmitter
     end
 
     def emit(event, arg = nil)
+      event = event.to_s unless event.is_a?(String)
       @channels[event].each do |channel|
         arg = EventEmitter.any(arg)
         channel.send(arg)

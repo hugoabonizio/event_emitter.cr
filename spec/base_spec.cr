@@ -41,9 +41,9 @@ describe EventEmitter::Base do
     flag_string = ""
     flag_bool = false
 
-    emitter.on :trigger_int, ->(int : EventEmitter::Base::Any) { flag_int = int }
-    emitter.on :trigger_string, ->(string : EventEmitter::Base::Any) { flag_string = string }
-    emitter.on :trigger_bool, ->(bool : EventEmitter::Base::Any) { flag_bool = bool }
+    emitter.on :trigger_int { |int| flag_int = int }
+    emitter.on :trigger_string { |string| flag_string = string }
+    emitter.on :trigger_bool { |bool| flag_bool = bool }
 
     emitter.emit :trigger_int, 123
     emitter.emit :trigger_string, "123"
@@ -53,6 +53,22 @@ describe EventEmitter::Base do
     flag_int.should eq(123)
     flag_string.should eq("123")
     flag_bool.should eq(true)
+  end
+
+  it "works with recursive types" do
+    emitter = EventEmitter::Base.new
+    flag_arr = [] of String
+    flag_hash = {} of String => String
+
+    emitter.on :trigger_arr { |arr| flag_arr = arr }
+    emitter.on :trigger_hash { |hash| flag_hash = hash }
+
+    emitter.emit :trigger_arr, [1, 2, 3, 4, 5]
+    emitter.emit :trigger_hash, {"a" => "b"}
+
+    sleep 100.milliseconds
+    flag_arr.should eq([1, 2, 3, 4, 5])
+    flag_hash.should eq({"a" => "b"})
   end
 
   it "executes once" do

@@ -83,4 +83,22 @@ describe EventEmitter::Base do
     sleep 100.milliseconds
     flag.should eq(2)
   end
+
+  it "listens to all events" do
+    emitter = EventEmitter::Base.new
+    flag = 0
+    
+    emitter.all do |e, v|
+      flag = v
+    end
+
+    emitter.emit(:test1, 7)
+    flag.should eq(7)
+
+    emitter.emit(:test2, 3)
+    flag.should eq(3)
+
+    emitter.emit(:test3, 9)
+    flag.should eq(9)
+  end
 end

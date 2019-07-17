@@ -1,10 +1,10 @@
 module EventEmitter
   class Base 
-    @all_handler : Proc(String, Any, Nil)? = nil
+    @all_handlers = [] of Proc(String, Any, Nil)
     @channels = Hash(String, Array(Channel::Unbuffered(Any))).new
 
     def all(&block : String, Any ->)
-      @all_handler = ->(event : String, response : Any) {
+      @all_handlers << ->(event : String, response : Any) {
         block.call(event, response)
       }
     end
@@ -45,7 +45,7 @@ module EventEmitter
       event = event.to_s unless event.is_a?(String)
       arg = EventEmitter.any(arg)
       
-      @all_handler.try &.call(event.to_s, arg)
+      @all_handlers.each &.call(event.to_s, arg)
       
       @channels[event]?.try &.each do |channel|
         channel.send(arg)

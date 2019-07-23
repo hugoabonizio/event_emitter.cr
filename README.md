@@ -4,7 +4,7 @@
 
 EventEmitter provides an idiomatic asynchronous event-driven architecture by registering listener functions that are called by named event emits. This shard is heavily inspired by Node.js [events API](https://nodejs.org/api/events.html).
 
-When the ```emit``` method is called, the listeners attached to it will be called (synchronously or asynchronously) with the possibility to pass arguments to it.
+When the `emit` method is called, the listeners attached to it will be called (synchronously or asynchronously) with the possibility to pass arguments to it.
 
 The following example shows a simple EventEmitter usage with a single listener.
 
@@ -27,7 +27,7 @@ emitter = MyEmitter.new
 emitter.connect("Hugo")
 ```
 
-Another approach is to inherit from ```EventEmitter::Base``` class, as the example above:
+Another approach is to inherit from `EventEmitter::Base` class, as the example above:
 
 ```crystal
 class MyEmitter < EventEmitter::Base; end
@@ -47,7 +47,7 @@ my.emit :event, "abonizio"
 
 #### Synchronous and asynchronous
 
-A listener can execute a block synchronously or asynchronously depending on the argument ```sync``` it is passed.
+A listener can execute a block synchronously or asynchronously depending on the argument `sync` it is passed.
 
 ```crystal
 # Asynchronous (executed in another fiber)
@@ -78,22 +78,11 @@ class MyEmitter
 end
 ```
 
-#### Multiple listeners
-
-It is possible to register more than one listener to a given event by calling [previous_def](https://crystal-lang.org/docs/syntax_and_semantics/methods_and_instance_variables.html) inside the block making the blocks stackable. If the listeners are async, each one is executed in its own fiber concurrently.
-
-```crystal
-on :message do |message|
-  previous_def(message)
-  log "Message received: #{message}"
-end
-```
-
 ### Instance
 
-The class ```EventEmitter::Base``` provides the methods ```on```, ```once``` and ```emit``` to insert a new listener, insert a one-time listener and trigger an event, respectively.
+The class `EventEmitter::Base` provides the methods `on`, `once` and `emit` to insert a new listener, insert a one-time listener and trigger an event, respectively. It also provides a `all` method for responding to all events, and a `remove_listener` method to delete a listener.
 
-You can inherit from ```EventEmitter::Base``` class to add custom functionality (```class MyEmitter < EventEmitter::Base; end```) or simply create an instance of ```EventEmitter::Base``` as the following example.
+You can inherit from `EventEmitter::Base` class to add custom functionality (`class MyEmitter < EventEmitter::Base; end`) or simply create an instance of `EventEmitter::Base` as the following example.
 
 ```crystal
 emitter = EventEmitter::Base.new
@@ -119,6 +108,40 @@ emitter.emit :trigger
 emitter.emit :trigger # Will execute only the first trigger
 ```
 
+Listening to all events:
+
+```crystal
+emitter = EventEmitter::Base.new
+flag = 0
+
+emitter.all { flag += 1 }
+
+emitter.emit(:foo)
+emitter.emit(:bar)
+emitter.emit(:foobar)
+
+puts flag
+# => 3
+```
+
+Removing an event listener:
+
+```crystal
+emitter = EventEmitter::Base.new
+flag = 0
+
+emitter.on(:foo) { flag += 1 }
+
+emitter.emit(:foo)
+
+emitter.remove_listener(:foo)
+
+emitter.emit(:foo)
+
+puts flag
+# => 1
+```
+
 ## Installation
 
 Add this to your application's `shard.yml`:
@@ -141,3 +164,4 @@ dependencies:
 ## Contributors
 
 - [hugoabonizio](https://github.com/hugoabonizio) Hugo Abonizio - creator, maintainer
+- [watzon](https://github.com/watzon) Chris Watson - contributor

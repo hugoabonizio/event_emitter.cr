@@ -12,6 +12,7 @@ module EventEmitter
               Float32 |
               Float64 |
               String |
+              Symbol |
               Array(Any) |
               Hash(Any, Any) |
               JSON::Any |
@@ -21,9 +22,9 @@ module EventEmitter
   def self.any(any)
     case any
     when Array
-      any.map &.as(Any)
+      any.map { |a| any(a).as(Any) }
     when Hash
-      any.map { |k, v| {k.as(Any), v.as(Any)} }.to_h
+      any.map { |k, v| {any(k).as(Any), any(v).as(Any)} }.to_h
     else
       any
     end

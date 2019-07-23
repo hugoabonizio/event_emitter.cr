@@ -5,8 +5,8 @@ module EventEmitter
 
     # Listen to all events and run the specified block. This is the
     # same as doing `emitter.on(/.*/) { ... }`
-    def all(params = {} of Any => Any, &block : Any ->)
-      on(/.*/, &block)
+    def all(once = false, &block : Any ->)
+      on(/.*/, once: once, &block)
     end
 
     # Listen for a particular `event` and fire the block
@@ -19,7 +19,7 @@ module EventEmitter
       id = @events.empty? ? 0 : @events.last.id + 1
       @events << Event.new(
         id: id,
-        event: event.as(Regex | String),
+        event: event,
         listener: block,
         once: once
       )
@@ -33,26 +33,29 @@ module EventEmitter
     end
 
     # Emit an event with the specified `arg`
-    def emit(event : Symbol | String | Regex, arg = nil)
+    def emit(event, arg = nil)
       event = event.to_s unless event.is_a?(String)
-      arg = EventEmitter.any(arg)
 
       @events.each do |e|
-        case e.event
-        when Regex
-          if event =~ e.event
+        spawn do
+          case e.event
+          when Regex
+            if event =~ e.event
+              listener = e.listener
+              listener.call(EventEmitter.any(arg))
+            end
+          when event
             listener = e.listener
-            listener.call(arg)
+            listener.call(EventEmitter.any(arg))
           end
-        when event
-          listener = e.listener
-          listener.call(arg)
-        end
 
-        if e.once
-          remove_listener(e.id)
+          if e.once
+            remove_listener(e.id)
+          end
         end
       end
+
+      Fiber.yield
     end
 
     # Remove an event listener by id or event.

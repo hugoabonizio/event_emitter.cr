@@ -80,7 +80,7 @@ end
 
 ### Instance
 
-The class `EventEmitter::Base` provides the methods `on`, `once` and `emit` to insert a new listener, insert a one-time listener and trigger an event, respectively. It also provides a `all` method for responding to all events, and a `remove_listener` method to delete a listener.
+The class `EventEmitter::Base` provides the methods `on`, `once` and `emit` to insert a new listener, insert a one-time listener and trigger an event, respectively. It also provides an `all` method for responding to all events, and a `remove_listener` method to delete a listener.
 
 You can inherit from `EventEmitter::Base` class to add custom functionality (`class MyEmitter < EventEmitter::Base; end`) or simply create an instance of `EventEmitter::Base` as the following example.
 

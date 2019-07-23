@@ -1,6 +1,6 @@
 module EventEmitter
   class Base
-    alias Event = NamedTuple(event: String | Regex, listener: Any ->, once: Bool, id: Int32)
+    record Event, id : Int32, event : String | Regex, listener : Any ->, once : Bool = false
     @events = [] of Event
 
     # Listen to all events and run the specified block. This is the
@@ -16,13 +16,13 @@ module EventEmitter
     def on(event, *, once = false, &block : Any ->)
       event = event.to_s unless event.is_a?(Regex)
 
-      id = @events.empty? ? 0 : @events.last[:id]
-      @events << {
+      id = @events.empty? ? 0 : @events.last.id + 1
+      @events << Event.new(
+        id: id,
         event: event.as(Regex | String),
         listener: block,
-        once: once,
-        id: id
-      }.as(Event)
+        once: once
+      )
       id
     end
 
@@ -38,19 +38,19 @@ module EventEmitter
       arg = EventEmitter.any(arg)
 
       @events.each do |e|
-        case e[:event]
+        case e.event
         when Regex
-          if event =~ e[:event]
-            listener = e[:listener]
+          if event =~ e.event
+            listener = e.listener
             listener.call(arg)
           end
         when event
-          listener = e[:listener]
+          listener = e.listener
           listener.call(arg)
         end
 
-        if e[:once]
-          remove_listener(e[:id])
+        if e.once
+          remove_listener(e.id)
         end
       end
     end
@@ -58,10 +58,10 @@ module EventEmitter
     # Remove an event listener by id or event.
     def remove_listener(id_or_event)
       if id_or_event.is_a?(Int)
-        @events = @events.reject { |e| e[:id] == id_or_event }
+        @events = @events.reject { |e| e.id == id_or_event }
       else
         event = id_or_event.is_a?(Regex) ? id_or_event : id_or_event.to_s
-        @events = @events.reject { |e| event == e[:event] }
+        @events = @events.reject { |e| event == e.event }
       end
     end
   end

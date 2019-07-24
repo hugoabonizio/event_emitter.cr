@@ -87,8 +87,8 @@ describe EventEmitter::Base do
   it "listens to all events" do
     emitter = EventEmitter::Base.new
     flag = 0
-    
-    emitter.all do |e, v|
+
+    emitter.all do |v|
       flag = v
     end
 
@@ -100,5 +100,49 @@ describe EventEmitter::Base do
 
     emitter.emit(:test3, 9)
     flag.should eq(9)
+  end
+
+  it "accepts regex events" do
+    emitter = EventEmitter::Base.new
+    a = 0
+    b = 0
+
+    emitter.on(/^foo.*/) do
+      a += 1
+    end
+
+    emitter.on(/^bar.*/) do
+      b += 1
+    end
+
+    emitter.emit(:foo)
+    emitter.emit(:foob)
+    emitter.emit(:joy)
+    emitter.emit("foo.bar")
+    emitter.emit("hello")
+
+    emitter.emit(:bar)
+    emitter.emit(:bars)
+    emitter.emit(:barns)
+    emitter.emit("bar.foo")
+    emitter.emit("bagel")
+
+    a.should eq(3)
+    b.should eq(4)
+  end
+
+  it "allows unsubscribing from events" do
+    emitter = EventEmitter::Base.new
+    a = 0
+
+    emitter.on(:foo) { a += 1 }
+
+    emitter.emit(:foo)
+
+    emitter.remove_listener(:foo)
+
+    emitter.emit(:foo)
+
+    a.should eq(1)
   end
 end
